@@ -111,8 +111,8 @@ void setup() {
 
 void loop() {
   /*
-   シリアル通信で文字列取得　形式:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==1/-1)
-   リセット文字確認して、Fなら','区切りで読みだす
+   シリアル通信で文字列取得　形式:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==act_UpDown)
+   リセット文字確認して、Tでないなら','区切りで読みだす
   */
   // データ受信まで待機
   while (Serial.available() = 0) {}
@@ -189,7 +189,14 @@ void loop() {
     analogWrite(DRPWM, D);
     analogWrite(DLPWM, 0);
   }
-
+  // 指定秒だけ伸ばす
   delay(move_ms);
+
+  // バッファクリア
+  while(Serial.available() > 0) {
+    Serial.read();
+  }
+
+  Serial.println("end of loop()");
 
 }
