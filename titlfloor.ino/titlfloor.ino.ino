@@ -31,6 +31,13 @@ int D = 255 * 0.95
 // 傾斜秒数に掛ける係数(>=1)
 float time_coefficient = 1.00
 
+// リセット確認文字(T/F)
+char reset = 'F';
+// 秒数読み込み用 (String)
+String tmp_ms;
+// 各アクチュエータ伸ばし秒数 (int)
+int move_ms[4] = {0,0,0,0};
+
 void setup() {
   Serial.begin(9600);
   // ピンの設定
@@ -41,13 +48,29 @@ void setup() {
   // 全アクチュエータ縮める
 
   // リセット水平まで伸ばす
-  
+
 }
 
 void loop() {
-  // シリアル通信で文字列取得
+  /*
+   シリアル通信で文字列取得　形式:Xnum,num,num,num, (X==T/F)
+   リセット文字確認して、Fなら','区切りで読みだす
+  */
+  // データ受信まで待機
+  while (Serial.available() = 0) {}
 
   // 先頭文字リセットならsetup()から再開
+  reset = Serial.read();
+  if (reset = 'T'){
+    Serial.println("reset True");
+    resetfunc();
+  } else if (reset = 'F') {
+    Serial.println("reset False");
+  } else {
+    ("reset code not T/F");
+  }
+
+
 
   // アクチュエータ動作
 }
