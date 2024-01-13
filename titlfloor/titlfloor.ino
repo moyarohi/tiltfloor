@@ -23,16 +23,16 @@ void(*resetFunc)(void) = 0;
  アクチュエータに指定するPWM電圧(0-255)に係数をかけて調節
  最も遅いアクチュエータを基準(1.00)にする
 */
-int A = 255 * 1.00 // A以外を遅くして調整(20240109現在)
-int B = 255 * 0.95
-int C = 255 * 0.95
-int D = 255 * 0.95
+int A = 255 * 1; // A以外を遅くして調整(20240109現在)
+int B = 255 * 0.98;
+int C = 255 * 1;
+int D = 255 * 0.98;
 
 // 傾斜秒数に掛ける係数(>=1)
-float time_coefficient = 1.00
+float time_coefficient = 1.00;
 
 // リセット秒数[ms]
-int reset_ms = 2500;
+int reset_ms = 2800;
 
 // リセット確認文字(T/F)
 char reset;
@@ -48,7 +48,7 @@ int i;
 
 void setup() {
   Serial.begin(9600);
-
+  Serial.println("setup()");
   /*
    リセットの度に初期化する変数
   */
@@ -119,6 +119,15 @@ void setup() {
   analogWrite(DLPWM, D);
   delay(reset_ms);
 
+  analogWrite(ARPWM, 0);
+  analogWrite(ALPWM, 0);
+  analogWrite(BRPWM, 0);
+  analogWrite(BLPWM, 0);
+  analogWrite(CRPWM, 0);
+  analogWrite(CLPWM, 0);
+  analogWrite(DRPWM, 0);
+  analogWrite(DLPWM, 0);
+
   Serial.println("end of setup()");
 
 }
@@ -134,7 +143,7 @@ void loop() {
 
   // 先頭文字リセットならsetup()から再開
   reset = Serial.read();
-  if (reset = 'T'){
+  if (reset == 'T'){
     Serial.println("reset True");
     // バッファクリア
     while(Serial.available() > 0) {
@@ -143,7 +152,7 @@ void loop() {
     // setup()から再開
     resetFunc();
   } 
-  else if (reset = 'F') {
+  else if (reset == 'F') {
     Serial.println("reset False");
   } 
   else {
@@ -154,6 +163,7 @@ void loop() {
   // 伸ばし秒数[ms]
   tmpString = Serial.readStringUntil(',');
   move_ms = tmpString.toInt();
+  Serial.println(move_ms); // for debug
   for (i = 0; i < 4; i++) {
     tmpString = Serial.readStringUntil(',');
     // int に変換
@@ -206,6 +216,15 @@ void loop() {
   }
   // 指定秒だけ伸ばす
   delay(move_ms);
+
+  analogWrite(ARPWM, 0);
+  analogWrite(ALPWM, 0);
+  analogWrite(BRPWM, 0);
+  analogWrite(BLPWM, 0);
+  analogWrite(CRPWM, 0);
+  analogWrite(CLPWM, 0);
+  analogWrite(DRPWM, 0);
+  analogWrite(DLPWM, 0);
 
   // バッファクリア
   while(Serial.available() > 0) {
