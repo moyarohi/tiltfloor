@@ -34,6 +34,17 @@ float time_coefficient = 1.00
 // リセット秒数[ms]
 int reset_ms = 2500;
 
+// リセット確認文字(T/F)
+char reset;
+// バッファ一時読み取り (String)
+String tmpString;
+// 各アクチュエータ伸ばし秒数 (int)
+int move_ms;
+// 各アクチュエータ上下判定　(1(UP)/-1(DOWN))
+int act_UpDown[4];
+
+// ループカウンタ
+int i;
 
 void setup() {
   Serial.begin(9600);
@@ -42,13 +53,15 @@ void setup() {
    リセットの度に初期化する変数
   */
   // リセット確認文字(T/F)
-  char reset = 'F';
+  reset = 'F';
   // バッファ一時読み取り (String)
-  String tmpString;
+  tmpString;
   // 各アクチュエータ伸ばし秒数 (int)
-  int move_ms = 0;
+  move_ms = 0;
   // 各アクチュエータ上下判定　(1(UP)/-1(DOWN))
-  int act_UpDown[4] = {0,0,0,0};
+  for (i = 0; i < 4; i++) {
+    act_UpDown[i] = 0;
+  }
 
   // ピンの設定
   // A
@@ -106,6 +119,8 @@ void setup() {
   analogWrite(DLPWM, D);
   delay(reset_ms);
 
+  Serial.println("end of setup()");
+
 }
 
 
@@ -115,7 +130,7 @@ void loop() {
    リセット文字確認して、Tでないなら','区切りで読みだす
   */
   // データ受信まで待機
-  while (Serial.available() = 0) {}
+  while (Serial.available() <= 0) {}
 
   // 先頭文字リセットならsetup()から再開
   reset = Serial.read();
@@ -126,20 +141,20 @@ void loop() {
       Serial.read();
     }
     // setup()から再開
-    resetfunc();
+    resetFunc();
   } 
   else if (reset = 'F') {
     Serial.println("reset False");
   } 
   else {
-    ("reset code isn't T/F");
+    Serial.println("reset code isn't T/F");
   }
 
   // ','区切りで読みだす
   // 伸ばし秒数[ms]
   tmpString = Serial.readStringUntil(',');
   move_ms = tmpString.toInt();
-  for (i = 1; i < 4; i++) {
+  for (i = 0; i < 4; i++) {
     tmpString = Serial.readStringUntil(',');
     // int に変換
     act_UpDown[i] = tmpString.toInt();

@@ -2,16 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 // 平面オブジェクトを矢印キー操作によってオイラーで回転させるスクリプト
 public class TiltFloor : MonoBehaviour
 {
+    // SerialHandlerクラス
+    public SerialHandler serialHandler;       
+    // Arduinoに送信するデータ　形式:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==act_UpDown)
+    private string cmds_ = "F500,1,-1,-1,1,";
+
+
     // Start is called before the first frame update
     void Start()
     {
-        // SerialHandlerクラス
-        //public SerialHandler serialHandler;       
-        // Arduinoに送信するデータ　形式:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==act_UpDown)
-        //private string cmds_ = "F500,1,-1,-1,1,";
+
     }
 
     // Update is called once per frame
@@ -23,7 +27,7 @@ public class TiltFloor : MonoBehaviour
             // 画面内の傾斜描画
             this.transform.rotation = Quaternion.Euler(0,0,10);
             // シリアル送信
-            //serialHandler.Write(cmds_);
+            serialHandler.Write(cmds_);
         }
 
         // 右矢印キー ロール回転
