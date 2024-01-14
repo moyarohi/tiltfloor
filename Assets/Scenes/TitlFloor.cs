@@ -7,7 +7,7 @@ using UnityEngine;
 public class TiltFloor : MonoBehaviour
 {
     // SerialHandlerクラス
-    public SerialHandler serialHandler;       
+    public SerialHandler serialHandler;
     // Arduinoに送信するデータ　形式:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==act_UpDown)
     private string cmds_ = "F500,1,-1,-1,1,";
 
