@@ -23,24 +23,28 @@ void(*resetFunc)(void) = 0;
  アクチュエータに指定するPWM電圧(0-255)に係数をかけて調節
  最も遅いアクチュエータを基準(1.00)にする
 */
-int A = 255 * 1; // A以外を遅くして調整(20240109現在)
-int B = 255 * 0.98;
-int C = 255 * 1;
-int D = 255 * 0.98;
 
-// 傾斜秒数に掛ける係数(>=1)
-float time_coefficient = 1.00;
+// 最終的な各電圧に掛ける調整係数
+int Avol_coefficient = 1; // A以外を遅くして調整(20240109現在)
+int Bvol_coefficien = 0.98;
+int Cvol_coefficien = 0.98;
+int Dvol_coefficien = 0.98;
+// 各アクチュエータ電圧
+int Avol;
+int Bvol;
+int Cvol;
+int Dvol;
 
 // リセット秒数[ms]
 int reset_ms = 2800;
 
-// リセット確認文字(T/F)
-char reset;
 // バッファ一時読み取り (String)
 String tmpString;
-// 各アクチュエータ伸ばし秒数 (int)
-int move_ms;
-// 各アクチュエータ上下判定　(1(UP)/-1(DOWN))
+// リセット確認文字_シリアル受信 (T/F)
+char reset;
+// 各アクチュエータ電圧_シリアル受信 (int)
+int vol;
+// 各アクチュエータ上下判定_シリアル受信　(1(UP)/-1(DOWN))
 int act_UpDown[4];
 
 // ループカウンタ
@@ -57,11 +61,18 @@ void setup() {
   // バッファ一時読み取り (String)
   tmpString;
   // 各アクチュエータ伸ばし秒数 (int)
-  move_ms = 0;
+  //move_ms = 0;
+  // 各アクチュエータ電圧 (int)
+  vol = 0;
   // 各アクチュエータ上下判定　(1(UP)/-1(DOWN))
   for (i = 0; i < 4; i++) {
     act_UpDown[i] = 0;
   }
+  // 各アクチュエータ電圧
+  Avol = 0;
+  Bvol = 0;
+  Cvol = 0;
+  Dvol = 0;
 
   // ピンの設定
   // A
@@ -110,13 +121,13 @@ void setup() {
 
   // リセット水平まで伸ばす
   analogWrite(ARPWM, 0);
-  analogWrite(ALPWM, A);
+  analogWrite(ALPWM, 255);
   analogWrite(BRPWM, 0);
-  analogWrite(BLPWM, B);
+  analogWrite(BLPWM, 247);
   analogWrite(CRPWM, 0);
-  analogWrite(CLPWM, C);
+  analogWrite(CLPWM, 247);
   analogWrite(DRPWM, 0);
-  analogWrite(DLPWM, D);
+  analogWrite(DLPWM, 247);
   delay(reset_ms);
 
   analogWrite(ARPWM, 0);
@@ -135,7 +146,7 @@ void setup() {
 
 void loop() {
   /*
-   シリアル通信で文字列取得　形式:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==act_UpDown)
+   シリアル通信で文字列取得　形式:Xnum,num,num,num,num, (X==T/F num==vol num...num==act_UpDown)
    リセット文字確認して、Tでないなら','区切りで読みだす
   */
   // データ受信まで待機
@@ -162,8 +173,8 @@ void loop() {
   // ','区切りで読みだす
   // 伸ばし秒数[ms]
   tmpString = Serial.readStringUntil(',');
-  move_ms = tmpString.toInt();
-  Serial.println(move_ms); // for debug
+  vol = tmpString.toInt();
+  Serial.println(vol);  // for debug
   for (i = 0; i < 4; i++) {
     tmpString = Serial.readStringUntil(',');
     // int に変換
@@ -172,51 +183,59 @@ void loop() {
     Serial.println(act_UpDown[i]); // デバッグ用
   }
 
+  // 各電圧の決定
+  Avol = vol * Avol_coefficient;
+  Bvol = vol * Bvol_coefficient;
+  Cvol = vol * Cvol_coefficient;
+  Dvol = vol * Dvol_coefficient;
+
+
+
   /*
    アクチュエータ動作
   */
   // A
   if (act_UpDown[0] > 0) {  // 伸ばす場合
     analogWrite(ARPWM, 0);
-    analogWrite(ALPWM, A);
+    analogWrite(ALPWM, Avol);
   }
   else if (act_UpDown[0] < 0) {  // 縮める場合
-    analogWrite(ARPWM, A);
+    analogWrite(ARPWM, Avol);
     analogWrite(ALPWM, 0);
   }
 
   // B
   if (act_UpDown[1] > 0) {  // 伸ばす場合
     analogWrite(BRPWM, 0);
-    analogWrite(BLPWM, B);
+    analogWrite(BLPWM, Bvol);
   }
   else if (act_UpDown[1] < 0) {  // 縮める場合
-    analogWrite(BRPWM, B);
+    analogWrite(BRPWM, Bvol);
     analogWrite(BLPWM, 0);
   }
   
   // C
   if (act_UpDown[2] > 0) {  // 伸ばす場合
     analogWrite(CRPWM, 0);
-    analogWrite(CLPWM, C);
+    analogWrite(CLPWM, Cvol);
   }
   else if (act_UpDown[2] < 0) {  // 縮める場合
-    analogWrite(CRPWM, C);
+    analogWrite(CRPWM, Cvol);
     analogWrite(CLPWM, 0);
   }
 
   // D
   if (act_UpDown[3] > 0) {  // 伸ばす場合
     analogWrite(DRPWM, 0);
-    analogWrite(DLPWM, D);
+    analogWrite(DLPWM, Dvol);
   }
   else if (act_UpDown[3] < 0) {  // 縮める場合
-    analogWrite(DRPWM, D);
+    analogWrite(DRPWM, Dvol);
     analogWrite(DLPWM, 0);
   }
-  // 指定秒だけ伸ばす
-  delay(move_ms);
-
+  // 1000msで目標位置に到達
+  delay(1000);
+  // 停止
   analogWrite(ARPWM, 0);
   analogWrite(ALPWM, 0);
   analogWrite(BRPWM, 0);
