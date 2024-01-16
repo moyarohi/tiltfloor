@@ -25,10 +25,10 @@ void(*resetFunc)(void) = 0;
 */
 
 // 最終的な各電圧に掛ける調整係数
-float Avol_coefficient = 1; // A以外を遅くして調整(20240109現在)
-float Bvol_coefficient = 1;
-float Cvol_coefficient = 1;
-float Dvol_coefficient = 0.98;
+int Avol_coefficient = 1; // A以外を遅くして調整(20240109現在)
+int Bvol_coefficien = 0.98;
+int Cvol_coefficien = 0.98;
+int Dvol_coefficien = 0.98;
 // 各アクチュエータ電圧
 int Avol;
 int Bvol;
@@ -69,11 +69,10 @@ void setup() {
     act_UpDown[i] = 0;
   }
   // 各アクチュエータ電圧
-  Avol = 255 * Avol_coefficient;
-  Bvol = 255 * Bvol_coefficient;
-  Cvol = 255 * Cvol_coefficient;
-  Dvol = 255 * Dvol_coefficient;
-
+  Avol = 0;
+  Bvol = 0;
+  Cvol = 0;
+  Dvol = 0;
 
   // ピンの設定
   // A
@@ -122,13 +121,13 @@ void setup() {
 
   // リセット水平まで伸ばす
   analogWrite(ARPWM, 0);
-  analogWrite(ALPWM, Avol);
+  analogWrite(ALPWM, 255);
   analogWrite(BRPWM, 0);
-  analogWrite(BLPWM, Bvol);
+  analogWrite(BLPWM, 247);
   analogWrite(CRPWM, 0);
-  analogWrite(CLPWM, Cvol);
+  analogWrite(CLPWM, 247);
   analogWrite(DRPWM, 0);
-  analogWrite(DLPWM, Dvol);
+  analogWrite(DLPWM, 247);
   delay(reset_ms);
 
   analogWrite(ARPWM, 0);
@@ -175,13 +174,13 @@ void loop() {
   // 伸ばし秒数[ms]
   tmpString = Serial.readStringUntil(',');
   vol = tmpString.toInt();
-  //Serial.println(vol);  // for debug
+  Serial.println(vol);  // for debug
   for (i = 0; i < 4; i++) {
     tmpString = Serial.readStringUntil(',');
     // int に変換
     act_UpDown[i] = tmpString.toInt();
 
-    //Serial.println(act_UpDown[i]); // デバッグ用
+    Serial.println(act_UpDown[i]); // デバッグ用
   }
 
   // 各電圧の決定
@@ -189,6 +188,7 @@ void loop() {
   Bvol = vol * Bvol_coefficient;
   Cvol = vol * Cvol_coefficient;
   Dvol = vol * Dvol_coefficient;
+
 
 
   /*

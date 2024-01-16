@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-// •½–ÊƒIƒuƒWƒFƒNƒg‚ð–îˆóƒL[‘€ì‚É‚æ‚Á‚ÄƒIƒCƒ‰[‚Å‰ñ“]‚³‚¹‚éƒXƒNƒŠƒvƒg
+// å¹³é¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’çŸ¢å°ã‚­ãƒ¼æ“ä½œã«ã‚ˆã£ã¦ã‚ªã‚¤ãƒ©ãƒ¼ã§å›žè»¢ã•ã›ã‚‹ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
 public class TiltFloor : MonoBehaviour
 {
-    // SerialHandlerƒNƒ‰ƒX
+    // SerialHandlerã‚¯ãƒ©ã‚¹
     public SerialHandler serialHandler;
-    // Arduino‚É‘—M‚·‚éƒf[ƒ^@Œ`Ž®:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==act_UpDown)
+    // Arduinoã«é€ä¿¡ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ã€€å½¢å¼:Xnum,num,num,num,num, (X==T/F num==move_ms num...num==act_UpDown)
 
     [SerializeField] GameObject gameObject;
-    [SerializeField] private char rotate_direction = 'w'; // switch case ‚Å‰ñ“]•ûŒü‚ð”»’è‚·‚é
+    [SerializeField] private char rotate_direction = 'w'; // switch case ã§å›žè»¢æ–¹å‘ã‚’åˆ¤å®šã™ã‚‹
     private float change_deg = 0;
     private float target_deg = 0;
-    private bool isMoving = false; // true ‚Å‰ñ“]•`‰æ
+    private bool isMoving = false; // true ã§å›žè»¢æç”»
 
     // Start is called before the first frame update
     void Start()
@@ -25,7 +25,7 @@ public class TiltFloor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // ‰ñ“]•ûŒü@Inspector‚¶‚á‚È‚­‚ÄƒL[‘€ì‚Å‚à•Ï‚¦‚ê‚é
+        // å›žè»¢æ–¹å‘ã€€Inspectorã˜ã‚ƒãªãã¦ã‚­ãƒ¼æ“ä½œã§ã‚‚å¤‰ãˆã‚Œã‚‹
         if (Input.GetKeyDown(KeyCode.W))
         {
             rotate_direction = 'w';
@@ -50,11 +50,11 @@ public class TiltFloor : MonoBehaviour
         // 1: 1deg
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            // ‰æ–Ê“à‚ÌŒXŽÎ•`‰æ
+            // ç”»é¢å†…ã®å‚¾æ–œæç”»
             setDeg(3.00f);
             Debug.Log("serial 1deg");
-            // ƒVƒŠƒAƒ‹‘—M
-            serialHandler.Write("F45,-1,1,1,-1,");
+            // ã‚·ãƒªã‚¢ãƒ«é€ä¿¡
+            serialHandler.Write("F100,1,-1,-1,1,");
 
         }
         // 2deg
@@ -62,64 +62,60 @@ public class TiltFloor : MonoBehaviour
         {
             setDeg(3.00f);
             Debug.Log("serial 2deg");
-            serialHandler.Write("F90,-1,1,1,-1,");
         }
         // 3deg
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             setDeg(3.00f);
             Debug.Log("serial 3deg");
-            serialHandler.Write("F145,-1,1,1,-1,");
         }
         //4deg
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             setDeg(3.00f);
             Debug.Log("serial 4deg");
-            serialHandler.Write("F180,-1,1,1,-1,");
         }
         //5deg
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
             setDeg(3.00f);
             Debug.Log("serial 5deg");
-            serialHandler.Write("F215,-1,1,1,-1,");
         }
 
 
 
 
-        // TƒL[@‰ñ“]ƒŠƒZƒbƒg
+        // Tã‚­ãƒ¼ã€€å›žè»¢ãƒªã‚»ãƒƒãƒˆ
         if (Input.GetKeyDown(KeyCode.T))
         {
             this.transform.rotation = Quaternion.Euler(0, 0, 0);
             Debug.Log("get T key");
-            serialHandler.Write("T");
+            //serialHandler.Write("T");
         }
 
-
+        
         if (isMoving == true)
         {
-
+            
             switch (rotate_direction)
             {
-                case 'w': // ƒsƒbƒ`‘O
-                    gameObject.transform.Rotate(target_deg * Time.deltaTime, 0, 0);
+                case 'w': // ãƒ”ãƒƒãƒå‰
+                    gameObject.transform.Rotate( target_deg * Time.deltaTime, 0, 0);
                     break;
-                case 's': // ƒsƒbƒ`Œã
-                    gameObject.transform.Rotate(-(target_deg * Time.deltaTime), 0, 0);
+                case 's': // ãƒ”ãƒƒãƒå¾Œ
+                    gameObject.transform.Rotate( -(target_deg * Time.deltaTime), 0, 0);
                     break;
-                case 'a': // ƒ[ƒ‹¶
-                    gameObject.transform.Rotate(0, 0, target_deg * Time.deltaTime);
+                case 'a': // ãƒ­ãƒ¼ãƒ«å·¦
+                    gameObject.transform.Rotate( 0, 0, target_deg * Time.deltaTime);
                     break;
-                case 'd': //ƒ[ƒ‹‰E
-                    gameObject.transform.Rotate(0, 0, -(target_deg * Time.deltaTime));
+                case 'd': //ãƒ­ãƒ¼ãƒ«å³
+                    gameObject.transform.Rotate( 0, 0, -(target_deg * Time.deltaTime));
                     break;
 
             }
-            change_deg += target_deg * Time.deltaTime; // Šp“xXV
+            change_deg += target_deg * Time.deltaTime; // è§’åº¦æ›´æ–°
 
-            // Šp“x‚É“ž’B‚µ‚½‚ç‰ñ“]I—¹
+            // è§’åº¦ã«åˆ°é”ã—ãŸã‚‰å›žè»¢çµ‚äº†
             if (change_deg >= target_deg)
             {
                 isMoving = false;
